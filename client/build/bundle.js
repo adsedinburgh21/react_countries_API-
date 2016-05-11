@@ -19672,13 +19672,14 @@
 	var CountrySelect = __webpack_require__(160);
 	var CountryInfoBox = __webpack_require__(161);
 	var CountryBorders = __webpack_require__(162);
+	var RegionSelect = __webpack_require__(163);
 	
 	var CountriesBox = React.createClass({
 	  displayName: 'CountriesBox',
 	
 	
 	  getInitialState: function getInitialState() {
-	    return { countries: [], selectedCountry: null };
+	    return { countries: [], regions: [], selectedCountry: null, selectedRegion: null };
 	  },
 	  //// above: sets state.countries as an empty array & state.selectedCountry as null.
 	
@@ -19687,12 +19688,30 @@
 	  },
 	  //// above: this function is passed as a property to CountrySelect in the render function below. So it can be accessed when in CountrySelect by using this.props.onSelectCountry.
 	
+	  setSelectedRegion: function setSelectedRegion(region) {
+	    this.setState({ selectedRegion: region });
+	    // console.log("selected region in Countries Box (top level): ", this.state.selectedRegion);
+	  },
+	
+	  filterRegions: function filterRegions() {
+	    var unfilteredRegions = this.state.countries.map(function (country) {
+	      return country.region;
+	    });
+	    var filteredRegions = unfilteredRegions.filter(function (region, index) {
+	      if (unfilteredRegions.indexOf(region) === index) {
+	        return region;
+	      }
+	    });
+	    return filteredRegions;
+	  },
+	
 	  componentDidMount: function componentDidMount() {
 	    var request = new XMLHttpRequest();
 	    request.open("GET", "https://restcountries.eu/rest/v1/all");
 	    request.onload = function () {
 	      var data = JSON.parse(request.responseText);
 	      this.setState({ countries: data });
+	      this.setState({ regions: this.filterRegions() });
 	    }.bind(this);
 	    request.send();
 	  },
@@ -19707,9 +19726,10 @@
 	        null,
 	        ' Countries Box '
 	      ),
-	      React.createElement(CountrySelect, { countries: this.state.countries, onSelectCountry: this.setSelectedCountry }),
+	      React.createElement(CountrySelect, { countries: this.state.countries, selectedRegion: this.state.selectedRegion, onSelectCountry: this.setSelectedCountry }),
+	      React.createElement(RegionSelect, { regions: this.state.regions, onSelectRegion: this.setSelectedRegion }),
 	      React.createElement(CountryInfoBox, { selectedCountry: this.state.selectedCountry }),
-	      React.createElement(CountryBorders, { selectedCountry: this.state.selectedCountry })
+	      React.createElement(CountryBorders, { countries: this.state.countries, selectedCountry: this.state.selectedCountry })
 	    ); ///// above: "onSelectCountry={this.setSelectedCountry}" is setting a key in the properties (the props) with the value 'onSelectCountry' and the value is the function setSelectedCountry. We can then access this in lower levels by using this.props.onSelectCountry so we are giving our lower level .jsx files access to the function on the top level.
 	  }
 	});
@@ -19740,15 +19760,29 @@
 	  }, //// above - onSelectCountry is a function passed via props from CountriesBox which takes in a country and sets the value of the key 'selectedCountry' on the State object (this.state.selectedCountry) to be the Country we passed in.  'this.props.countries[newIndex]' returns a single country - but we only have access to this at this level, not on the top level, so thats why we are using the onSelectCountry function that sets the State on the top level. So we can then pass this info from the top level to any of the other lower levels by using properties.
 	
 	  render: function render() {
-	    var options = this.props.countries.map(function (country, index) {
-	      return React.createElement(
-	        'option',
-	        { value: index, key: index },
-	        ' ',
-	        country.name,
-	        ' '
-	      );
-	    });
+	    if (!this.props.selectedRegion) {
+	      var options = this.props.countries.map(function (country, index) {
+	        return React.createElement(
+	          'option',
+	          { value: index, key: index },
+	          ' ',
+	          country.name,
+	          ' '
+	        );
+	      });
+	    } else {
+	      var options = this.props.countries.map(function (country, index) {
+	        if (this.props.selectedRegion === country.region) {
+	          return React.createElement(
+	            'option',
+	            { value: index, key: index },
+	            ' ',
+	            country.name,
+	            ' '
+	          );
+	        }
+	      }.bind(this));
+	    }
 	
 	    return React.createElement(
 	      'div',
@@ -19840,22 +19874,44 @@
 	    if (!this.props.selectedCountry) {
 	      return React.createElement('p', null);
 	    }
-	    var borders = this.props.selectedCountry.borders.map(function (country, index) {
-	      return React.createElement(
+	    // var borders = this.props.selectedCountry.borders.map(function( borderCountry, index ){
+	    //   return <li value={index} key={index}> {borderCountry} </li>
+	    // });
+	    //// Above returns the bordering countries as 3 letter codes, eg. SCO, USA, etc.
+	
+	    var selectedCountryIsAnIsland = true;
+	    var borders = this.props.countries.map(function (country, index) {
+	      for (var i = 0; i < this.props.selectedCountry.borders.length; i++) {
+	        if (this.props.selectedCountry.borders[i] == country.alpha3Code) {
+	          selectedCountryIsAnIsland = false;
+	          return React.createElement(
+	            'li',
+	            { value: index, key: index },
+	            ' ',
+	            country.name,
+	            ' '
+	          );
+	        }
+	      }
+	    }.bind(this));
+	
+	    if (selectedCountryIsAnIsland) {
+	      borders = React.createElement(
 	        'li',
-	        { value: index, key: index },
+	        null,
 	        ' ',
-	        country,
-	        ' '
+	        this.props.selectedCountry.name,
+	        ' shares no land borders with other Countries.'
 	      );
-	    });
+	    }
+	
 	    return React.createElement(
 	      'div',
 	      null,
 	      React.createElement(
 	        'h5',
 	        null,
-	        ' Country Borders: '
+	        ' Bordering Countries: '
 	      ),
 	      React.createElement(
 	        'ul',
@@ -19867,6 +19923,65 @@
 	});
 	
 	module.exports = CountryBorders;
+
+/***/ },
+/* 163 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(1);
+	
+	var RegionSelect = React.createClass({
+	  displayName: 'RegionSelect',
+	
+	
+	  getInitialState: function getInitialState() {
+	    return { selectedIndex: null };
+	  },
+	
+	  handleRegionChange: function handleRegionChange(e) {
+	    e.preventDefault();
+	    var newIndex = e.target.value;
+	    this.setState({ selectedIndex: newIndex });
+	    this.props.onSelectRegion(this.props.regions[newIndex]);
+	    // console.log( "set selected region to ", this.props.regions[newIndex] )
+	  },
+	
+	  render: function render() {
+	    var options = this.props.regions.map(function (region, index) {
+	      return React.createElement(
+	        'option',
+	        { value: index, key: index },
+	        ' ',
+	        region,
+	        ' '
+	      );
+	    });
+	
+	    return React.createElement(
+	      'div',
+	      null,
+	      React.createElement(
+	        'h4',
+	        null,
+	        ' Region Select '
+	      ),
+	      React.createElement(
+	        'select',
+	        { value: this.state.selectedIndex, onChange: this.handleRegionChange },
+	        React.createElement(
+	          'option',
+	          null,
+	          ' World '
+	        ),
+	        options
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = RegionSelect;
 
 /***/ }
 /******/ ]);
