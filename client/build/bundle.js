@@ -19681,7 +19681,8 @@
 	  getInitialState: function getInitialState() {
 	    return { countries: [], regions: [], selectedCountry: null, selectedRegion: null };
 	  },
-	  //// above: sets state.countries as an empty array & state.selectedCountry as null.
+	  //// Want to keep the State as minimal as possible - if have too many, we may run into problems where the values become out of sync with each other.
+	  //// above: sets state.countries & state.regions as empty arrays,  and sets state.selectedCountry & state.selectedRegion as null.
 	
 	  setSelectedCountry: function setSelectedCountry(country) {
 	    this.setState({ selectedCountry: country });
@@ -19720,17 +19721,26 @@
 	  render: function render() {
 	    return React.createElement(
 	      'div',
-	      null,
+	      { id: 'display_text' },
 	      React.createElement(
-	        'h4',
-	        null,
-	        ' Countries Box '
+	        'div',
+	        { id: 'shadowbox1' },
+	        React.createElement(
+	          'h1',
+	          null,
+	          ' Country Selector '
+	        ),
+	        React.createElement(RegionSelect, { regions: this.state.regions, onSelectRegion: this.setSelectedRegion }),
+	        React.createElement(CountrySelect, { countries: this.state.countries, selectedRegion: this.state.selectedRegion, onSelectCountry: this.setSelectedCountry })
 	      ),
-	      React.createElement(CountrySelect, { countries: this.state.countries, selectedRegion: this.state.selectedRegion, onSelectCountry: this.setSelectedCountry }),
-	      React.createElement(RegionSelect, { regions: this.state.regions, onSelectRegion: this.setSelectedRegion }),
-	      React.createElement(CountryInfoBox, { selectedCountry: this.state.selectedCountry }),
-	      React.createElement(CountryBorders, { countries: this.state.countries, selectedCountry: this.state.selectedCountry })
+	      React.createElement(
+	        'div',
+	        { id: 'shadowbox2' },
+	        React.createElement(CountryInfoBox, { selectedCountry: this.state.selectedCountry }),
+	        React.createElement(CountryBorders, { countries: this.state.countries, selectedCountry: this.state.selectedCountry })
+	      )
 	    ); ///// above: "onSelectCountry={this.setSelectedCountry}" is setting a key in the properties (the props) with the value 'onSelectCountry' and the value is the function setSelectedCountry. We can then access this in lower levels by using this.props.onSelectCountry so we are giving our lower level .jsx files access to the function on the top level.
+	    //// Above: always need the <div> tags or it will error.
 	  }
 	});
 	
@@ -19790,7 +19800,7 @@
 	      React.createElement(
 	        'h4',
 	        null,
-	        ' CountrySelect '
+	        ' Select a Country: '
 	      ),
 	      React.createElement(
 	        'select',
@@ -19826,7 +19836,7 @@
 	      'div',
 	      null,
 	      React.createElement(
-	        'h2',
+	        'h1',
 	        null,
 	        ' Country: ',
 	        this.props.selectedCountry.name,
@@ -19882,7 +19892,7 @@
 	    var selectedCountryIsAnIsland = true;
 	    var borders = this.props.countries.map(function (country, index) {
 	      for (var i = 0; i < this.props.selectedCountry.borders.length; i++) {
-	        if (this.props.selectedCountry.borders[i] == country.alpha3Code) {
+	        if (this.props.selectedCountry.borders[i] === country.alpha3Code) {
 	          selectedCountryIsAnIsland = false;
 	          return React.createElement(
 	            'li',
@@ -19965,7 +19975,7 @@
 	      React.createElement(
 	        'h4',
 	        null,
-	        ' Region Select '
+	        ' Select a Region: '
 	      ),
 	      React.createElement(
 	        'select',

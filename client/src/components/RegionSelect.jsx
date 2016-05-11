@@ -21,7 +21,7 @@ var RegionSelect = React.createClass({
 
     return (
       <div>
-        <h4> Region Select </h4>
+        <h4> Select a Region: </h4>
         <select value={this.state.selectedIndex} onChange={this.handleRegionChange}>
           <option> World </option>
           { options }

@@ -1,0 +1,32 @@
+h4, h5{
+  color: #FF7500;
+}
+
+body{
+  background-image: url('http://wallpapercave.com/wp/wdDPg1T.png');
+  background-size: cover;
+}
+
+#app{
+  margin: 0 auto;
+}
+
+#display_text{
+  margin: 0 auto;
+  width: 75%;
+}
+
+#shadowbox1, #shadowbox2{
+  margin: 0 auto;
+  background-color: rgba(255,255,255,0.75);
+  width: 85%;
+}
+
+h1{
+  color: #323299;
+  margin: 0 auto;
+}
+
+li{
+  color: #323299;
+}

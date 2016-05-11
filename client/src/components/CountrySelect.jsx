@@ -29,7 +29,7 @@ var CountrySelect = React.createClass({
 
     return (
       <div>
-        <h4> CountrySelect </h4>
+        <h4> Select a Country: </h4>
         <select value={this.state.selectedIndex} onChange={this.handleChange}>
           { options }
         </select>

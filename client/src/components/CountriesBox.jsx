@@ -9,7 +9,8 @@ var CountriesBox = React.createClass({
   getInitialState: function(){
     return { countries: [], regions: [], selectedCountry: null, selectedRegion: null }
   },
-  //// above: sets state.countries as an empty array & state.selectedCountry as null.
+  //// Want to keep the State as minimal as possible - if have too many, we may run into problems where the values become out of sync with each other.
+  //// above: sets state.countries & state.regions as empty arrays,  and sets state.selectedCountry & state.selectedRegion as null.
 
   setSelectedCountry: function(country){
     this.setState({ selectedCountry: country });
@@ -48,14 +49,19 @@ var CountriesBox = React.createClass({
 
   render: function(){
     return (
-      <div>
-        <h4> Countries Box </h4>
-        <CountrySelect countries={this.state.countries} selectedRegion={this.state.selectedRegion} onSelectCountry={this.setSelectedCountry}/>
-        <RegionSelect regions={this.state.regions} onSelectRegion={this.setSelectedRegion}/>
-        <CountryInfoBox selectedCountry={this.state.selectedCountry}/>
-        <CountryBorders countries={this.state.countries} selectedCountry={this.state.selectedCountry}/>
+      <div id="display_text">
+        <div id="shadowbox1">
+          <h1> Country Selector </h1>
+          <RegionSelect regions={this.state.regions} onSelectRegion={this.setSelectedRegion}/>
+          <CountrySelect countries={this.state.countries} selectedRegion={this.state.selectedRegion} onSelectCountry={this.setSelectedCountry}/>
+        </div>
+        <div id="shadowbox2">
+          <CountryInfoBox selectedCountry={this.state.selectedCountry}/>
+          <CountryBorders countries={this.state.countries} selectedCountry={this.state.selectedCountry}/>
+        </div>
       </div>
     ) ///// above: "onSelectCountry={this.setSelectedCountry}" is setting a key in the properties (the props) with the value 'onSelectCountry' and the value is the function setSelectedCountry. We can then access this in lower levels by using this.props.onSelectCountry so we are giving our lower level .jsx files access to the function on the top level.
+    //// Above: always need the <div> tags or it will error.
   }
 })
 

@@ -13,10 +13,10 @@ var CountryBorders = React.createClass({
     var selectedCountryIsAnIsland = true;
     var borders = this.props.countries.map(function( country, index ){
       for( var i=0; i<this.props.selectedCountry.borders.length; i++){
-        if( this.props.selectedCountry.borders[i] == country.alpha3Code){
+        if( this.props.selectedCountry.borders[i] === country.alpha3Code){
           selectedCountryIsAnIsland = false;
           return <li value={index} key={index}> {country.name} </li>;
-        }  
+        }
       }
     }.bind(this));
     
